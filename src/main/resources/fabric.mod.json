@@ -8,8 +8,9 @@
     "Globox_Z"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/villagertradefix",
+    "sources": "https://github.com/Globox1997/VillagerTradeFix",
+    "issues": "https://github.com/Globox1997/VillagerTradeFix/issues"
   },
   "license": "MIT",
   "icon": "assets/villagerfix/icon.png",
