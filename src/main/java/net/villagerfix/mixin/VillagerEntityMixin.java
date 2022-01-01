@@ -47,12 +47,17 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Vill
         nbt.putInt("JobCount", this.jobList.size());
     }
 
-    @Inject(method = "fillRecipes", at = @At("HEAD"), cancellable = true)
-    protected void fillRecipesMixin(CallbackInfo info) {
-        if (this.jobList != null && this.jobList.contains(((VillagerEntity) (Object) this).getVillagerData().getProfession().toString())) {
-            this.offers = this.offerList.get(this.jobList.indexOf(((VillagerEntity) (Object) this).getVillagerData().getProfession().toString()));
-            info.cancel();
+    @Override
+    public TradeOfferList getOffers() {
+        if (this.offers == null) {
+            if (this.jobList != null && this.jobList.contains(((VillagerEntity) (Object) this).getVillagerData().getProfession().toString())) {
+                this.offers = this.offerList.get(this.jobList.indexOf(((VillagerEntity) (Object) this).getVillagerData().getProfession().toString()));
+            } else {
+                this.offers = new TradeOfferList();
+                this.fillRecipes();
+            }
         }
+        return this.offers;
     }
 
     @Override
