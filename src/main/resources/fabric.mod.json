@@ -3,7 +3,7 @@
   "id": "villagerfix",
   "version": "${version}",
   "name": "Villager Trade Fix",
-  "description": "Fixes villagertrades",
+  "description": "Fixes villagertrades to make them non op",
   "authors": [
     "Globox_Z"
   ],
@@ -16,7 +16,12 @@
   "icon": "assets/villagerfix/icon.png",
   "environment": "*",
   "entrypoints": {
-    "main": []
+    "main": [
+      "net.villagerfix.VillagerFixMain"
+    ],
+    "modmenu": [
+      "net.villagerfix.config.ModMenuIntegration"
+    ]
   },
   "mixins": [
     "villagerfix.mixins.json"
