@@ -13,7 +13,7 @@ import net.villagerfix.access.VillagerAccess;
 @Mixin(LoseJobOnSiteLossTask.class)
 public class LoseJobOnSiteLossTaskMixin {
 
-    @Inject(method = "run", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "run", at = @At("HEAD"))
     protected void runMixin(ServerWorld serverWorld, VillagerEntity villagerEntity, long l, CallbackInfo info) {
         ((VillagerAccess) villagerEntity).saveLastJob(villagerEntity);
     }
