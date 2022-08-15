@@ -25,8 +25,8 @@ import net.villagerfix.access.VillagerAccess;
 @Mixin(VillagerEntity.class)
 public abstract class VillagerEntityMixin extends MerchantEntity implements VillagerAccess {
 
-    private List<TradeOfferList> offerList = new ArrayList<TradeOfferList>();
-    private List<String> jobList = new ArrayList<String>();
+    private List<TradeOfferList> offerList = new ArrayList<>();
+    private List<String> jobList = new ArrayList<>();
 
     public VillagerEntityMixin(EntityType<? extends MerchantEntity> entityType, World world) {
         super(entityType, world);
@@ -110,5 +110,25 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Vill
             offerList.add(villagerEntity.getOffers());
             jobList.add(villagerEntity.getVillagerData().getProfession().toString());
         }
+    }
+
+    @Override
+    public void setJobList(List<String> jobList) {
+        this.jobList = jobList;
+    }
+
+    @Override
+    public void setOffersList(List<TradeOfferList> offersList) {
+        this.offerList = offersList;
+    }
+
+    @Override
+    public List<String> getJobList() {
+        return this.jobList;
+    }
+
+    @Override
+    public List<TradeOfferList> getOffersList() {
+        return this.offerList;
     }
 }
