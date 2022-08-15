@@ -51,6 +51,7 @@ public abstract class ZombieVillagerEntityMixin implements VillagerAccess {
         this.offerList = offerList;
     }
 
+    @Override
     public void setJobList(List<String> jobList) {
         this.jobList = jobList;
     }
