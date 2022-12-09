@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.asm.mixin.injection.At;
 
 import net.minecraft.entity.EntityType;
@@ -18,12 +19,12 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.village.TradeOffer;
 import net.minecraft.village.TradeOfferList;
+import net.minecraft.village.VillagerData;
 import net.minecraft.world.World;
 import net.villagerfix.VillagerFixMain;
-import net.villagerfix.access.VillagerAccess;
 
 @Mixin(VillagerEntity.class)
-public abstract class VillagerEntityMixin extends MerchantEntity implements VillagerAccess {
+public abstract class VillagerEntityMixin extends MerchantEntity {
 
     private List<TradeOfferList> offerList = new ArrayList<TradeOfferList>();
     private List<String> jobList = new ArrayList<String>();
@@ -68,28 +69,13 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Vill
         tradeOffer.increaseSpecialPrice(-Math.max(k, 0));
     }
 
-    // Won't get applied since bad injection point
-    // Other injection would change reputation integer for other trades too
-    // @ModifyVariable(method = "prepareOffersFor", at = @At(value = "INVOKE", target = "Lnet/minecraft/village/TradeOffer;increaseSpecialPrice(I)V", ordinal = 0), ordinal = 0)
-    // private int prepareOffersForMixin(int original) {
-    // if (buyItemCount * VillagerFixMain.CONFIG.maxReputationDiscount < original * priceMultiplier) {
-    // // return (int) (buyItemCount * VillagerFixMain.CONFIG.maxReputationDiscount / priceMultiplier);
-    // } else
-    // return original;
-    // }
-    // @Inject(method = "prepareOffersFor", at = @At(value = "INVOKE", target = "Lnet/minecraft/village/TradeOffer;increaseSpecialPrice(I)V", ordinal = 0), locals = LocalCapture.CAPTURE_FAILSOFT)
-    // private void prepareOffersForMixin(PlayerEntity player, CallbackInfo info, int i, Iterator<TradeOfferList> var3, TradeOffer tradeOffer) {
-    // priceMultiplier = tradeOffer.getPriceMultiplier();
-    // buyItemCount = tradeOffer.getOriginalFirstBuyItem().getCount();
-    // }
-    // @Inject(method = "prepareOffersFor", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/entity/effect/StatusEffectInstance;getAmplifier()I"), locals = LocalCapture.CAPTURE_FAILSOFT)
-    // private void prepareOffersForMixin(PlayerEntity player, CallbackInfo info, int i, StatusEffectInstance statusEffectInstance, int j) {
-    // amplifierVOTH = j;
-    // }
-    // @ModifyVariable(method = "prepareOffersFor", at = @At(value = "INVOKE", target = "Ljava/lang/Math;floor(D)D", shift = Shift.BEFORE), ordinal = 0)
-    // private double prepareOffersForMixin(double original) {
-    // return VillagerFixMain.CONFIG.baseVillagerOfTheHeroDiscount + VillagerFixMain.CONFIG.extraVillagerOfTheHeroDiscount * amplifierVOTH;
-    // }
+    @Inject(method = "setVillagerData", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/entity/passive/VillagerEntity;getVillagerData()Lnet/minecraft/village/VillagerData;"), locals = LocalCapture.CAPTURE_FAILSOFT)
+    private void setVillagerDataMixin(VillagerData villagerData, CallbackInfo info, VillagerData villagerData2) {
+        if (!offerList.contains(this.getOffers())) {
+            offerList.add(this.getOffers());
+            jobList.add(villagerData2.getProfession().toString());
+        }
+    }
 
     @Override
     public TradeOfferList getOffers() {
@@ -104,11 +90,4 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Vill
         return this.offers;
     }
 
-    @Override
-    public void saveLastJob(VillagerEntity villagerEntity) {
-        if (!offerList.contains(villagerEntity.getOffers())) {
-            offerList.add(villagerEntity.getOffers());
-            jobList.add(villagerEntity.getVillagerData().getProfession().toString());
-        }
-    }
 }
