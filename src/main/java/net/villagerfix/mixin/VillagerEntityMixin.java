@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
@@ -75,6 +76,14 @@ public abstract class VillagerEntityMixin extends MerchantEntity {
             offerList.add(this.getOffers());
             jobList.add(villagerData2.getProfession().toString());
         }
+    }
+
+    @ModifyVariable(method = "prepareOffersFor", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/entity/passive/VillagerEntity;getReputation(Lnet/minecraft/entity/player/PlayerEntity;)I"), ordinal = 0)
+    private int prepareOffersForReputationMixin(int i) {
+        if (i > VillagerFixMain.CONFIG.maxReputation) {
+            i = VillagerFixMain.CONFIG.maxReputation;
+        }
+        return i;
     }
 
     @Override

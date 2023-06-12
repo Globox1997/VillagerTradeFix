@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.0-SNAPSHOT'
+	id 'fabric-loom' version '1.1-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -13,6 +13,8 @@ group = project.maven_group
 repositories {
 	maven { url "https://maven.shedaniel.me/" }
 	maven { url "https://maven.terraformersmc.com/" }
+	maven { url "https://ladysnake.jfrog.io/artifactory/mods" }
+	maven { url "https://www.cursemaven.com" }
 }
 
 dependencies {
@@ -30,6 +32,12 @@ dependencies {
 	modCompileOnly modRuntimeOnly("com.terraformersmc:modmenu:${project.mod_menu_version}"),{
 		exclude(group: "net.fabricmc.fabric-api")
 	}
+	// Numismatic
+	modCompileOnly ('curse.maven:numismatic-overhaul-568316:3860596') {
+		exclude(group: "net.fabricmc.fabric-api")
+	}
+	modImplementation ("dev.onyxstudios.cardinal-components-api:cardinal-components-base:5.0.0-beta.1")
+    modImplementation ("dev.onyxstudios.cardinal-components-api:cardinal-components-entity:5.0.0-beta.1")
 
 }
 

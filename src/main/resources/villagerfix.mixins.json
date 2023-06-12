@@ -3,8 +3,10 @@
   "minVersion": "0.8",
   "package": "net.villagerfix.mixin",
   "compatibilityLevel": "JAVA_17",
+  "plugin": "net.villagerfix.mixin.VillagerFixMixinPlugin",
   "mixins": [
-    "VillagerEntityMixin"
+    "VillagerEntityMixin",
+    "compat.NumismaticVillagerMixin"
   ],
   "client": [],
   "injectors": {

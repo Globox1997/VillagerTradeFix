@@ -13,4 +13,5 @@ public class VillagerFixConfig implements ConfigData {
     public double extraVillagerOfTheHeroDiscount = 0.05D;
 
     public double maxReputationDiscount = 0.2D;
+    public int maxReputation = 25;
 }
