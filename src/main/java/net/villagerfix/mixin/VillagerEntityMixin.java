@@ -94,11 +94,12 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Vill
     @Override
     public TradeOfferList getOffers() {
         if (this.offers == null) {
-            if (this.jobList != null && this.jobList.contains(((VillagerEntity) (Object) this).getVillagerData().getProfession().toString()))
+            if (this.jobList != null && this.jobList.contains(((VillagerEntity) (Object) this).getVillagerData().getProfession().toString())) {
                 this.offers = this.offerList.get(this.jobList.indexOf(((VillagerEntity) (Object) this).getVillagerData().getProfession().toString()));
-            else
+            } else {
                 this.offers = new TradeOfferList();
-            this.fillRecipes();
+                this.fillRecipes();
+            }
         }
         return this.offers;
     }
