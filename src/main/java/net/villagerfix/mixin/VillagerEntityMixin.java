@@ -3,12 +3,16 @@ package net.villagerfix.mixin;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+
+import com.mojang.logging.LogUtils;
+
 import org.spongepowered.asm.mixin.injection.At;
 
 import net.minecraft.entity.EntityType;
@@ -17,6 +21,8 @@ import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.village.TradeOffer;
 import net.minecraft.village.TradeOfferList;
@@ -27,6 +33,7 @@ import net.villagerfix.VillagerFixMain;
 @Mixin(VillagerEntity.class)
 public abstract class VillagerEntityMixin extends MerchantEntity {
 
+    private static final Logger LOGGER = LogUtils.getLogger();
     private List<TradeOfferList> offerList = new ArrayList<TradeOfferList>();
     private List<String> jobList = new ArrayList<String>();
 
@@ -39,8 +46,13 @@ public abstract class VillagerEntityMixin extends MerchantEntity {
         for (int i = 0; i < nbt.getInt("JobCount"); ++i) {
             String jobString = "OldOffer" + i;
             jobList.add(nbt.getString(jobString + "OldWork"));
-            if (nbt.contains(jobString, 10))
-                offerList.add(new TradeOfferList(nbt.getCompound(jobString)));
+            if (nbt.contains(jobString, 10)) {
+                TradeOfferList.CODEC.parse(this.getRegistryManager().getOps(NbtOps.INSTANCE), nbt.get(jobString)).resultOrPartial(Util.addPrefix("Failed to load offers: ", LOGGER::warn))
+                        .ifPresent(offers -> {
+                            this.offerList.add(offers);
+                        });
+            }
+
         }
     }
 
@@ -48,8 +60,8 @@ public abstract class VillagerEntityMixin extends MerchantEntity {
     public void writeCustomDataToNbtMixin(NbtCompound nbt, CallbackInfo info) {
         for (int i = 0; i < this.jobList.size(); ++i) {
             String jobString = "OldOffer" + i;
-            nbt.put(jobString, this.offerList.get(i).toNbt());
             nbt.putString(jobString + "OldWork", this.jobList.get(i));
+            nbt.put(jobString, TradeOfferList.CODEC.encodeStart(this.getRegistryManager().getOps(NbtOps.INSTANCE), this.offerList.get(i)).getOrThrow());
         }
         nbt.putInt("JobCount", this.jobList.size());
     }
@@ -58,8 +70,9 @@ public abstract class VillagerEntityMixin extends MerchantEntity {
     private void prepareOffersForRedirect(TradeOffer tradeOffer, int amount) {
         if (tradeOffer.getOriginalFirstBuyItem().getCount() * VillagerFixMain.CONFIG.maxReputationDiscount < MathHelper.abs(amount)) {
             tradeOffer.increaseSpecialPrice(-MathHelper.floor((float) VillagerFixMain.CONFIG.maxReputationDiscount * tradeOffer.getOriginalFirstBuyItem().getCount()));
-        } else
+        } else {
             tradeOffer.increaseSpecialPrice(amount);
+        }
     }
 
     @Redirect(method = "prepareOffersFor", at = @At(value = "INVOKE", target = "Lnet/minecraft/village/TradeOffer;increaseSpecialPrice(I)V", ordinal = 1))
